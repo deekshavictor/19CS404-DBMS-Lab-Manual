@@ -1,245 +1,271 @@
-# Experiment 5: Subqueries and Views
+# Experiment 6: Joins
 
 ## AIM
-To study and implement subqueries and views.
+To study and implement different types of joins.
 
 ## THEORY
 
-### Subqueries
-A subquery is a query inside another SQL query and is embedded in:
-- WHERE clause
-- HAVING clause
-- FROM clause
+SQL Joins are used to combine records from two or more tables based on a related column.
 
-**Types:**
-- **Single-row subquery**:
-  Sub queries can also return more than one value. Such results should be made use along with the operators in and any.
-- **Multiple-row subquery**:
-  Here more than one subquery is used. These multiple sub queries are combined by means of ‘and’ & ‘or’ keywords.
-- **Correlated subquery**:
-  A subquery is evaluated once for the entire parent statement whereas a correlated Sub query is evaluated once per row processed by the parent statement.
+### 1. INNER JOIN
+Returns records with matching values in both tables.
 
-**Example:**
+**Syntax:**
 ```sql
-SELECT * FROM employees
-WHERE salary > (SELECT AVG(salary) FROM employees);
+SELECT columns
+FROM table1
+INNER JOIN table2
+ON table1.column = table2.column;
 ```
-### Views
-A view is a virtual table based on the result of an SQL SELECT query.
-**Create View:**
+
+### 2. LEFT JOIN
+Returns all records from the left table, and matched records from the right.
+
+**Syntax:**
+
 ```sql
-CREATE VIEW view_name AS
-SELECT column1, column2 FROM table_name WHERE condition;
+SELECT columns
+FROM table1
+LEFT JOIN table2
+ON table1.column = table2.column;
 ```
-**Drop View:**
+### 3. RIGHT JOIN
+Returns all records from the right table, and matched records from the left.
+
+**Syntax:**
+
 ```sql
-DROP VIEW view_name;
+SELECT columns
+FROM table1
+RIGHT JOIN table2
+ON table1.column = table2.column;
+```
+### 4. FULL OUTER JOIN
+Returns all records when there is a match in either left or right table.
+
+**Syntax:**
+
+```sql
+SELECT columns
+FROM table1
+FULL OUTER JOIN table2
+ON table1.column = table2.column;
 ```
 
 **Question 1**
 --
--- From the following tables, write a SQL query to find all the orders generated in New York city. Return ord_no, purch_amt, ord_date, customer_id and salesman_id.
+-- Write the SQL query that achieves the selection of all columns from the "patients" table, with an inner join on the "doctor_id" column, and includes a condition filtering for patients whose doctors have the first name 'John' and last name 'Smith'.
 
-```
-SELECT o.ord_no,
-       o.purch_amt,
-       o.ord_date,
-       o.customer_id,
-       o.salesman_id
-FROM orders o
-JOIN salesman s
-  ON o.salesman_id = s.salesman_id
-WHERE s.city = 'New York';
-
+```sql
+-- SELECT p.patient_id,
+       p.first_name,
+       p.last_name,
+       p.date_of_birth,
+       p.admission_date,
+       p.discharge_date,
+       p.doctor_id
+FROM patients p
+INNER JOIN doctors d
+  ON p.doctor_id = d.doctor_id
+WHERE d.first_name = 'John'
+  AND d.last_name = 'Smith';
 ```
 
 **Output:**
 
-<img width="1131" height="435" alt="image" src="https://github.com/user-attachments/assets/3555d898-46f1-47ef-bb24-0ea05fd64f83" />
+<img width="956" height="300" alt="image" src="https://github.com/user-attachments/assets/058cc221-4e97-4823-8fa3-1695ee6ac25a" />
 
 
 **Question 2**
 ---
--- Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose salary is greater than $1500.
+--Write the SQL query that achieves the selection of all columns from the "customer" table (aliased as "c"), with a left join on the "salesman_id" column and a condition filtering for salesman with the name 'Mc Lyon'.
 
 ```
-SELECT * FROM customers WHERE salary > 1500;
+SELECT c.customer_id,
+       c.cust_name,
+       c.city,
+       c.grade,
+       c.salesman_id
+FROM customer c
+LEFT JOIN salesman s
+  ON c.salesman_id = s.salesman_id
+WHERE s.name = 'Mc Lyon';
 ```
 
 **Output:**
 
-<img width="1105" height="527" alt="image" src="https://github.com/user-attachments/assets/c015e259-5faa-41c5-8c68-2904e22e4e8b" />
-
+<img width="700" height="290" alt="image" src="https://github.com/user-attachments/assets/2aedfe62-590b-46c2-b869-4e2bfcbedf37" />
 
 **Question 3**
 ---
--- From the following tables write a SQL query to find the order values greater than the average order value of 10th October 2012. Return ord_no, purch_amt, ord_date, customer_id, salesman_id.
+-- Write the SQL query that achieves the selection of admission dates from the "patients" table and surgery dates from the "surgeries" table, with an inner join on the "patient_id" column.
 
 ```
-SELECT ord_no,
-       purch_amt,
-       ord_date,
-       customer_id,
-       salesman_id
-FROM orders
-WHERE purch_amt > (
-    SELECT AVG(purch_amt)
-    FROM orders
-    WHERE ord_date = '2012-10-10'
-);
+SELECT p.admission_date,
+       s.surgery_date
+FROM patients p
+INNER JOIN surgeries s
+  ON p.patient_id = s.patient_id;
 ```
 
 **Output:**
 
-<img width="1127" height="406" alt="image" src="https://github.com/user-attachments/assets/a96fe692-0337-454d-bca8-5d65c7f8d4d5" />
+<img width="660" height="495" alt="image" src="https://github.com/user-attachments/assets/e20b1b81-ddf5-4d1b-8265-cdffb67f7d98" />
 
 
 **Question 4**
 ---
---From the following tables write a SQL query to find all orders generated by London-based salespeople. Return ord_no, purch_amt, ord_date, customer_id, salesman_id.
+-- Write the SQL query that achieves the selection of all columns from the "nurses" table (aliased as "n") and the "department_name" column from the "departments" table, with an inner join on the "department_id" column.
 
 ```
-SELECT o.ord_no,
-       o.purch_amt,
-       o.ord_date,
-       o.customer_id,
-       o.salesman_id
-FROM orders o
-JOIN salesman s
-  ON o.salesman_id = s.salesman_id
-WHERE s.city = 'London';
-
+SELECT n.nurse_id,
+       n.first_name,
+       n.last_name,
+       n.department_id,
+       d.department_name
+FROM nurses n
+INNER JOIN departments d
+  ON n.department_id = d.department_id;
 ```
 
 **Output:**
-<img width="1122" height="357" alt="image" src="https://github.com/user-attachments/assets/bc3f98ae-c314-4919-8477-44dcb3d0adef" />
+
+<img width="732" height="427" alt="image" src="https://github.com/user-attachments/assets/3652b8c5-7687-44e3-a996-7cceed5ae038" />
 
 
 **Question 5**
 ---
--- Write a SQL query to Find employees who have an age less than the average age of employees with incomes over 1 million
+--From the following tables write a SQL query to display the customer name, customer city, grade, salesman, salesman city. The results should be sorted by ascending customer_id.
 
 ```
-SELECT id,
-       name,
-       age,
-       city,
-       income
-FROM employee
-WHERE age < (
-    SELECT AVG(age)
-    FROM employee
-    WHERE income > 1000000
-);
-
+SELECT c.cust_name,
+       c.city,
+       c.grade,
+       s.name AS Salesman,
+       s.city
+FROM customer c
+JOIN salesman s
+  ON c.salesman_id = s.salesman_id
+ORDER BY c.customer_id ASC;
 ```
 
 **Output:**
 
-<img width="1261" height="362" alt="image" src="https://github.com/user-attachments/assets/edee3b49-1bca-44b5-8153-ab2d39603041" />
+<img width="707" height="752" alt="image" src="https://github.com/user-attachments/assets/dbefc1d2-1769-4cf0-aba3-c2863b75acc9" />
 
 
 **Question 6**
 ---
--- From the following tables, write a SQL query to find those salespeople who earned the maximum commission. Return ord_no, purch_amt, ord_date, and salesman_id.
+-- From the following tables write a SQL query to find those orders where the order amount exists between 500 and 2000. Return ord_no, purch_amt, cust_name, city.
 
 ```
 SELECT o.ord_no,
        o.purch_amt,
-       o.ord_date,
-       o.salesman_id
+       c.cust_name,
+       c.city
 FROM orders o
-JOIN salesman s
-  ON o.salesman_id = s.salesman_id
-WHERE s.commission = (
-    SELECT MAX(commission)
-    FROM salesman
-);
+JOIN customer c
+  ON o.customer_id = c.customer_id
+WHERE o.purch_amt BETWEEN 500 AND 2000;
 ```
 
 **Output:**
-
-<img width="935" height="426" alt="image" src="https://github.com/user-attachments/assets/c9314ef5-66d5-4a49-93f1-51e1faff96da" />
+<img width="1207" height="417" alt="image" src="https://github.com/user-attachments/assets/32213cf4-7f89-48f8-8623-daa2e1ca680c" />
 
 
 **Question 7**
 ---
---From the following tables, write a SQL query to find all the orders issued by the salesman 'Paul Adam'. Return ord_no, purch_amt, ord_date, customer_id and salesman_id.
+-- SQL statement to generate a report with customer name, city, order number, order date, order amount, salesperson name, and commission to determine if any of the existing customers have not placed orders or if they have placed orders through their salesman or by themselves.
+
+```
+SELECT c.cust_name,
+       c.city,
+       o.ord_no,
+       o.ord_date,
+       o.purch_amt AS "Order Amount",
+       s.name AS name,
+       s.commission
+FROM customer c
+LEFT JOIN orders o
+  ON c.customer_id = o.customer_id
+LEFT JOIN salesman s
+  ON o.salesman_id = s.salesman_id;
+```
+
+**Output:**
+
+<img width="782" height="847" alt="image" src="https://github.com/user-attachments/assets/a54fe031-55ae-4793-9ff1-75d16dc08fa4" />
+
+
+**Question 8**
+---
+--Write the SQL query that achieves the selection of all columns from the "salesman" table (aliased as "s"), with a left join on the "salesman_id" column and a condition filtering for customers with the name 'Fabian Johns'.
+
+```
+SELECT s.salesman_id,
+       s.name,
+       s.city,
+       s.commission
+FROM salesman s
+LEFT JOIN customer c
+  ON s.salesman_id = c.salesman_id
+WHERE c.cust_name = 'Fabian Johns';
+```
+
+**Output:**
+
+<img width="1022" height="281" alt="image" src="https://github.com/user-attachments/assets/c2ac6565-6a45-431a-ab39-3691d1333f2d" />
+
+
+**Question 9**
+---
+-- Write a SQL statement to join the tables salesman, customer and orders so that the same column of each table appears once and only the relational rows are returned.
 
 ```
 SELECT o.ord_no,
        o.purch_amt,
        o.ord_date,
-       o.customer_id,
-       o.salesman_id
+       c.cust_name,
+       c.city AS customer_city,
+       c.grade,
+       s.name AS salesman_name,
+       s.city AS salesman_city,
+       s.commission
 FROM orders o
+JOIN customer c
+  ON o.customer_id = c.customer_id
 JOIN salesman s
-  ON o.salesman_id = s.salesman_id
-WHERE s.name = 'Paul Adam';
+  ON o.salesman_id = s.salesman_id;
 ```
 
 **Output:**
 
-<img width="1126" height="331" alt="image" src="https://github.com/user-attachments/assets/cfd1cc65-e56b-4ef9-9caa-5efdf15254e3" />
-
-
-**Question 8**
----
--- Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose salary is greater than $4500.
-
-```
-SELECT *
-FROM customers
-WHERE salary > 4500;
-```
-
-**Output:**
-
-<img width="1072" height="371" alt="image" src="https://github.com/user-attachments/assets/6618adad-bc8a-4acf-beec-617b42ab0c02" />
-
-
-**Question 9**
----
--- Write a query to display all the customers whose ID is the difference between the salesperson ID of Mc Lyon and 2001.
-
-```
-SELECT *
-FROM customer
-WHERE customer_id = (
-    SELECT (salesman_id - 2001)
-    FROM salesman
-    WHERE name = 'Mc Lyon'
-);
-```
-
-**Output:**
-
-<img width="1162" height="270" alt="image" src="https://github.com/user-attachments/assets/f787c441-b150-4933-aa94-462649a2bf54" />
+<img width="961" height="817" alt="image" src="https://github.com/user-attachments/assets/5c1760b0-c9e1-4056-8b8f-b4b4b3cb605f" />
 
 
 **Question 10**
 ---
--- Write a SQL query that retrieve all the columns from the table "Grades", where the grade is equal to the maximum grade achieved in each subject.
+-- From the following tables write a SQL query to locate those salespeople who do not live in the same city where their customers live and have received a commission of more than 12% from the company. Return Customer Name, customer city, Salesman, salesman city, commission.
 
-Sample table: GRADES (attributes: student_id, student_name, subject, grade)
 ```
-SELECT student_id,
-       student_name,
-       subject,
-       grade
-FROM grades g
-WHERE grade = (
-    SELECT MAX(grade)
-    FROM grades
-    WHERE subject = g.subject
-);
+SELECT c.cust_name AS "Customer Name",
+       c.city AS "city",
+       s.name AS "Salesman",
+       s.city AS "city",
+       s.commission
+FROM customer c
+JOIN salesman s
+  ON c.salesman_id = s.salesman_id
+WHERE c.city <> s.city
+  AND s.commission > 0.12;
+
 ```
 
 **Output:**
 
-<img width="1257" height="377" alt="image" src="https://github.com/user-attachments/assets/0739a6f6-7715-4e40-b713-f67de0e409ef" />
+<img width="1185" height="462" alt="image" src="https://github.com/user-attachments/assets/ad6d2df9-b1b9-4f9f-920d-2aca37f448bb" />
 
 
 
 ## RESULT
-Thus, the SQL queries to implement subqueries and views have been executed successfully.
+Thus, the SQL queries to implement different types of joins have been executed successfully.
